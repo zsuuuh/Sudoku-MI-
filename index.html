@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        td {
+            width: 30px;
+            height: 30px;
+            border: 1px solid black;
+            text-align: center;
+            font-size: 16px;
+        }
+        .region {
+            background-color: lightgray;
+        }
+    </style>
+</head>
+<body>
+    <table id="sudokuTable">
+        <tr>
+            <td class="region">5</td><td>3</td><td></td> <td></td> <td>7</td> <td></td> <td></td> <td></td> <td></td>
+        </tr>
+        <tr>
+            <td>6</td><td></td><td></td> <td>1</td> <td>9</td> <td>5</td> <td></td> <td></td> <td></td>
+        </tr>
+        <tr>
+            <td></td><td>9</td><td>8</td> <td></td> <td></td> <td></td> <td></td> <td>6</td> <td></td>
+        </tr>
+        <tr><td colspan="9" class="region"></td></tr>
+        <tr>
+            <td>8</td><td></td><td></td> <td></td> <td>6</td> <td></td> <td></td> <td></td> <td>3</td>
+        </tr>
+        <tr>
+            <td>4</td><td></td><td></td> <td>8</td> <td></td> <td>3</td> <td></td> <td></td> <td>1</td>
+        </tr>
+        <tr>
+            <td>7</td><td></td><td></td> <td></td> <td>2</td> <td></td> <td></td> <td></td> <td>6</td>
+        </tr>
+        <tr><td colspan="9" class="region"></td></tr>
+        <tr>
+            <td></td><td>6</td><td></td> <td></td> <td></td> <td></td> <td>2</td> <td>8</td> <td></td>
+        </tr>
+        <tr>
+            <td></td><td></td><td></td> <td>4</td> <td></td> <td>9</td> <td></td> <td></td> <td>5</td>
+        </tr>
+        <tr>
+            <td></td><td></td><td></td> <td></td> <td>8</td> <td></td> <td></td> <td>7</td> <td>9</td>
+        </tr>
+    </table>
+
+    <script>
+        // Kiválasztjuk az összes olyan cellát, amelynek nincs száma
+        const emptyCells = document.querySelectorAll("#sudokuTable td:not(.region):empty");
+
+        // Minden üres cellához hozzáadjuk a kattintásfigyelőt
+        emptyCells.forEach(cell => {
+            cell.addEventListener("click", function() {
+                // A felhasználó által megadott számot a cella tartalmába írjuk be
+                const userInput = prompt("Kérem írja be a számot 1 és 9 között:");
+                // Ellenőrizzük, hogy a bevitt szám a megfelelő tartományba esik-e és szám-e
+                const number = parseInt(userInput);
+                if (!isNaN(number) && number >= 1 && number <= 9) {
+                    // Beírjuk a számot a cellába
+                    cell.textContent = number;
+                } else {
+                    alert("Kérem adjon meg egy érvényes számot 1 és 9 között!");
+                }
+            });
+        });
+    </script>
+	<script>
+    // Kiválasztjuk az ellenőrzendő Sudoku táblázatot
+		const sudokuTable = document.getElementById("sudokuTable");
+
+		// Függvény az ellenőrzéshez
+		function checkSolution() {
+			// Tárolja az ellenőrzött számokat
+			let numbers = [];
+
+			// Ellenőrizzük a sorokat és oszlopokat
+			for (let i = 0; i < 9; i++) {
+				let rowNumbers = [];
+				let colNumbers = [];
+				for (let j = 0; j < 9; j++) {
+					const rowCell = sudokuTable.rows[i].cells[j];
+					const colCell = sudokuTable.rows[j].cells[i];
+					const rowCellValue = rowCell.textContent;
+					const colCellValue = colCell.textContent;
+
+					if (rowCellValue !== "") {
+						if (rowNumbers.includes(rowCellValue)) {
+							alert("Hibás megoldás! Azonos szám szerepel a(z) " + (i + 1) + ". sorban többször.");
+							return;
+						}
+						rowNumbers.push(rowCellValue);
+					}
+
+					if (colCellValue !== "") {
+						if (colNumbers.includes(colCellValue)) {
+							alert("Hibás megoldás! Azonos szám szerepel a(z) " + (i + 1) + ". oszlopban többször.");
+							return;
+						}
+						colNumbers.push(colCellValue);
+					}
+				}
+			}
+
+			// Ellenőrizzük a 3x3-as régiókat
+			for (let i = 0; i < 9; i += 3) {
+				for (let j = 0; j < 9; j += 3) {
+					let regionNumbers = [];
+					for (let k = i; k < i + 3; k++) {
+						for (let l = j; l < j + 3; l++) {
+							const cell = sudokuTable.rows[k].cells[l];
+							const cellValue = cell.textContent;
+							if (cellValue !== "") {
+								if (regionNumbers.includes(cellValue)) {
+									alert("Hibás megoldás! Azonos szám szerepel egy 3x3-as régióban többször.");
+									return;
+								}
+								regionNumbers.push(cellValue);
+							}
+						}
+					}
+				}
+			}
+
+			// Ha nincs hiba, akkor a megoldás helyes
+			alert("Gratulálunk! A megoldás helyes!");
+		}
+
+		// Gomb hozzáadása az ellenőrzéshez
+		const checkButton = document.createElement("button");
+		checkButton.textContent = "Megoldás ellenőrzése";
+		checkButton.addEventListener("click", checkSolution);
+		document.body.appendChild(checkButton);
+	</script>
+	<script>
+    // Függvény az új játék indításához
+    function startNewGame() {
+        // Kiválasztjuk az összes cellát
+        const cells = document.querySelectorAll("#sudokuTable td:not(.region)");
+
+        // Kitöröljük a cellák tartalmát
+        cells.forEach(cell => {
+            cell.textContent = "";
+        });
+
+        // Generáljuk az új kezdő táblát
+        generateNewBoard();
+    }
+
+    // Függvény a kezdő tábla generálásához
+    function generateNewBoard() {
+        // Új, üres 9x9-es mátrix létrehozása
+        let board = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => ""));
+
+        // Kitöltjük véletlenszerű számokkal a táblát
+        for (let i = 0; i < 17; i++) { // Kezdetben 17 mezőt hagyunk üresen
+            let row = Math.floor(Math.random() * 9);
+            let col = Math.floor(Math.random() * 9);
+            let num = Math.floor(Math.random() * 9) + 1;
+
+            // Ellenőrizzük, hogy a szám megfelel-e a Sudoku szabályainak
+            if (isValidMove(board, row, col, num)) {
+                board[row][col] = num.toString();
+            }
+        }
+
+        // Az új tábla értékeit beírjuk a megfelelő cellákba
+        const cells = document.querySelectorAll("#sudokuTable td:not(.region)");
+        cells.forEach((cell, index) => {
+            cell.textContent = board[Math.floor(index / 9)][index % 9];
+        });
+    }
+
+    // Segédfüggvény az új tábla generálásához
+    function isValidMove(board, row, col, num) {
+        // Ellenőrizzük a sort és az oszlopot
+        for (let i = 0; i < 9; i++) {
+            if (board[row][i] === num.toString() || board[i][col] === num.toString()) {
+                return false;
+            }
+        }
+
+        // Ellenőrizzük a 3x3-as régiót
+        let startRow = Math.floor(row / 3) * 3;
+        let startCol = Math.floor(col / 3) * 3;
+        for (let i = startRow; i < startRow + 3; i++) {
+            for (let j = startCol; j < startCol + 3; j++) {
+                if (board[i][j] === num.toString()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // Gomb hozzáadása az új játék indításához
+    const newGameButton = document.createElement("button");
+    newGameButton.textContent = "Új játék indítása";
+    newGameButton.addEventListener("click", startNewGame);
+    document.body.appendChild(newGameButton);
+</script>
+
+
+
+
+
+</body>
+</html>
